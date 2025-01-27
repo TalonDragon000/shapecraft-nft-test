@@ -1,0 +1,38 @@
+## Environment Variables
+.env 
+shape-api/.env
+alchemy-sdk/.env
+
+## Node Modules
+node_modules
+node_modules/
+shape-api/node_modules/
+alchemy-sdk/node_modules/
+
+## Package-lock.json
+package-lock.json
+alchemy-sdk/package-lock.json
+shape-api/package-lock.json
+
+# Hardhat files
+/cache
+/artifacts
+/src/contracts
+/src/test
+/src/ignition
+cache
+artifacts 
+.DS_Store
+
+# TypeChain files
+/typechain
+/typechain-types
+
+# solidity-coverage files
+/coverage
+/coverage.json
+
+# Hardhat Ignition default folder for deployments
+ignition/deployments
+ignition/deployments/chain-31337
+ignition/deployments/chain-11011
