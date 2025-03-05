@@ -2,9 +2,9 @@ import { ethers } from "hardhat";
 import { Avatar } from "../typechain-types";
 import * as dotenv from "dotenv";
 
-dotenv.config();
-
 async function main() {
+  dotenv.config();
+
   // Contract address - you can set this in .env or pass as argument
   const AVATAR_ADDRESS = process.env.AVATAR_ADDRESS;
   
@@ -16,7 +16,7 @@ async function main() {
   console.log("\nConnected to Avatar contract at:", AVATAR_ADDRESS);
   console.log("Connected with address:", [
     owner.address,
-    addr1.address
+    //addr1.address
   ]);
 
   // Enhanced function to check current URI

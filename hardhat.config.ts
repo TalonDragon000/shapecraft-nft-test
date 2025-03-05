@@ -18,9 +18,9 @@ const config: HardhatUserConfig = {
   networks: {
     shapeSepolia: {
       url: `https://shape-sepolia.g.alchemy.com/v2/${process.env.SHAPE_API_KEY}`,
+      chainId: 11011,
       accounts: [
-        process.env.SHAPE_SEPOLIA_PRIVATE_KEY_1 || "", 
-        process.env.SHAPE_SEPOLIA_PRIVATE_KEY_2 || ""
+        process.env.SHAPE_PRIVATE_KEY || ""
       ],
     },
   },

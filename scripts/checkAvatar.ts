@@ -2,17 +2,23 @@ import { ethers } from "hardhat";
 import { Avatar } from "../typechain-types";
 import * as dotenv from 'dotenv';
 
-dotenv.config();
-
 async function main() {
+  dotenv.config();
+
   // Get multiple signers
-  const [owner, addr1, addr2] = await ethers.getSigners();
-  const signers = [owner, addr1, addr2];
+  const [owner 
+    //addr1, 
+    //addr2
+    ] = await ethers.getSigners();
+  const signers = [owner 
+    //addr1, 
+    //addr2
+    ];
 
   // Get the Avatar contract instance at the specified address
-  const avatarAddress = "0x5a3330376851c016EF6f5B3b756FBDbc98777804";
-  const worldAddress = "0xC361b5d9388994B85690A83B5AF798A952bE58b9";
-  const avatar = await ethers.getContractAt("Avatar", avatarAddress) as Avatar;
+  const AVATAR_ADDRESS = process.env.AVATAR_ADDRESS;
+  const WORLD_ADDRESS = process.env.WORLD_ADDRESS;
+  const avatar = await ethers.getContractAt("Avatar", AVATAR_ADDRESS as string) as Avatar;
 
   const address = owner.address;
   console.log("Address:", address);
@@ -35,9 +41,9 @@ async function main() {
 
   // Check world NFT balances
   for (let tokenId = 0; tokenId < 5; tokenId++) {
-   const worldBalance = await avatar.balanceOf(worldAddress, tokenId);
+   const worldBalance = await avatar.balanceOf(WORLD_ADDRESS as string, tokenId);
     if (worldBalance > 0) {
-        console.log("Checking NFT balance for world:", worldAddress);
+        console.log("Checking NFT balance for world:", WORLD_ADDRESS as string);
         console.log(`Token ID ${tokenId}: ${worldBalance.toString()} tokens`);
     }
   }
