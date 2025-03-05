@@ -10,26 +10,26 @@ Steps to run the project:
 4. Run the project
 
 ``` 
-// Run the project
-
-ALCHEMY_API_KEY, PINATA_METADATA_CID, PINATA_IMAGE_CID, PINATA_GATEWAY_URL
 // Environment variables
+ALCHEMY_API_KEY, PINATA_METADATA_CID, PINATA_IMAGE_CID, PINATA_GATEWAY_URL
 
-npx hardhat node // This will start the Hardhat network
+// Start the Hardhat network
+npx hardhat node
 
-npx hardhat ignition deploy ignition/modules/<file.ts> // This will deploy the contracts
+// Deploy the contracts
+npx hardhat ignition deploy ignition/modules/<file.ts> 
+npx hardhat ignition deploy ignition/modules/<file.ts> --network <network_name>
 
-npx hardhat ignition deploy ignition/modules/<file.ts> --network <network_name> // This will deploy the contracts to a specific network
+// Run the scripts
+npx hardhat run scripts/<scripts_file.ts> 
+npx hardhat run scripts/<scripts_file.ts> --network <network_name>
 
-npx hardhat run scripts/<scripts_file.ts> // This will run the scripts
+// Run the tests
+npx hardhat test <test_file.ts> 
+npx hardhat test <test_file.ts> --network <network_name>
 
-npx hardhat run scripts/<scripts_file.ts> --network <network_name> // This will run the scripts on a specific network
-
-npx hardhat test <test_file.ts> // This will run the tests
-
-npx hardhat test <test_file.ts> --network <network_name> // This will run the tests on a specific network
-
-npx hardhat help // For more help
+// For more help
+npx hardhat help 
 ```
 
 ## Features
