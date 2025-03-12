@@ -54,7 +54,6 @@ npx hardhat help
 
     ```
     Public can mint up to the mint limit --> "mint()" "avatar.connect(<YOUR_ADDRESS>).mint()"
-    Public can update the metadata URI for their own NFT --> "setTokenURI(tokenId, newURI)"
     ```
 
   - NFT Info:
@@ -65,6 +64,7 @@ npx hardhat help
     Each NFT has a unique ID assigned to it --> tokenId()
     Each NFT is assigned to the address that minted it --> ownerOf()
     Default mint limit is 1 NFT per address
+    NFT holders can update the metadata URI for specific NFTs --> "setTokenURI(tokenId, newURI)"
     ```
 
 - World.sol
