@@ -2,6 +2,8 @@
 
 This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
 
+This contract is deployed on the Sepolia testnet at contract address: [0xf6e224cCF996Ab01d089e1cA43aD1F5dD47344B4](https://sepolia.etherscan.io/address/0xf6e224cCF996Ab01d089e1cA43aD1F5dD47344B4)
+
 Steps to run the project:
 
 1. Clone the repository
