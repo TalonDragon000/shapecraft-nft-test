@@ -18,8 +18,8 @@ async function main() {
   const address = await avatar.getAddress();
   console.log("Avatar deployed to:", address);
   
-  // Set the initial URI with the PINATA_IMAGE_CID
-  const initialURI = `ipfs://${PINATA_IMAGE_CID}.json`;
+  // Set the initial URI with the PINATA_METADATA_CID
+  const initialURI = `ipfs://${PINATA_METADATA_CID}.json`;
   await avatar.setURI(initialURI);
 
   console.log("Avatar CID:", PINATA_IMAGE_CID);
