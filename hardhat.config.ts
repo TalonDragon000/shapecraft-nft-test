@@ -14,13 +14,20 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  defaultNetwork: "shapeSepolia",
+  defaultNetwork: "shape-mainnet",
   networks: {
+    shapeMainnet: {
+      url: `https://shape-mainnet.g.alchemy.com/v2/${process.env.SHAPE_API_KEY}`,
+      chainId: 360,
+      accounts: [
+        process.env.SHAPE_PRIVATE_KEY || ""
+      ],
+    },
     shapeSepolia: {
       url: `https://shape-sepolia.g.alchemy.com/v2/${process.env.SHAPE_API_KEY}`,
       chainId: 11011,
       accounts: [
-        process.env.SHAPE_PRIVATE_KEY || ""
+        process.env.SHAPE_SEPOLIA_PRIVATE_KEY || ""
       ],
     },
   },
