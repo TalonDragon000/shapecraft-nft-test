@@ -2,7 +2,10 @@
 
 This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
 
-This contract is deployed on the Sepolia testnet at contract address: [0xf6e224cCF996Ab01d089e1cA43aD1F5dD47344B4](https://sepolia.etherscan.io/address/0xf6e224cCF996Ab01d089e1cA43aD1F5dD47344B4)
+This contract is deployed on the following networks:
+Sepolia testnet at contract address: [0xf6e224cCF996Ab01d089e1cA43aD1F5dD47344B4](https://sepolia.etherscan.io/address/0xf6e224cCF996Ab01d089e1cA43aD1F5dD47344B4)
+
+Shape Mainnet at contract address: [0x2a5A365Ff81067D761F4BBD314C52976A8789EA8](https://shapescan.xyz/address/0x2a5A365Ff81067D761F4BBD314C52976A8789EA8)
 
 Steps to run the project:
 
