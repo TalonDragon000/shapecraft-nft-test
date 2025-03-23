@@ -16,7 +16,7 @@ async function main() {
   console.log("\nConnected to Avatar contract at:", AVATAR_ADDRESS);
   console.log("Connected with address:", [
     owner.address,
-    //addr1.address
+    addr1.address
   ]);
 
   // Enhanced function to check current URI
@@ -122,6 +122,8 @@ async function main() {
         console.error("Please provide new URI");
         process.exit(1);
       }
+      await updateURI(param, tokenId);
+      break;
 
     case "toggle":
       if (!param) {
