@@ -1,17 +1,21 @@
 import { ethers } from "hardhat";
+import * as dotenv from "dotenv";
 
 async function main() {
+
+  dotenv.config();
+
   // Constants
-  const AVATAR_ADDRESS = "0x5a3330376851c016EF6f5B3b756FBDbc98777804";
-  const WORLD_ADDRESS = "0xC361b5d9388994B85690A83B5AF798A952bE58b9";
-  const TOKEN_ID = 0;
+  const AVATAR_ADDRESS = process.env.AVATAR_ADDRESS;
+  const WORLD_ADDRESS = process.env.WORLD_ADDRESS;
+  const TOKEN_ID = process.env.TOKEN_ID;
 
   // Get the World contract
-  const World = await ethers.getContractAt("World", WORLD_ADDRESS);
+  const World = await ethers.getContractAt("World", WORLD_ADDRESS as string);
 
   console.log(`Exporting Avatar NFT (Token ID: ${TOKEN_ID}) from World...`);
   // Then export the item from the World contract
-  const exportTx = await World.exportItem(AVATAR_ADDRESS, TOKEN_ID);
+  const exportTx = await World.exportItem(AVATAR_ADDRESS as string, TOKEN_ID as string);
   await exportTx.wait();
   console.log("Export successful!");
 }

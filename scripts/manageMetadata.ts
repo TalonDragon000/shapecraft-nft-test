@@ -2,9 +2,9 @@ import { ethers } from "hardhat";
 import { Avatar } from "../typechain-types";
 import * as dotenv from "dotenv";
 
-dotenv.config();
-
 async function main() {
+  dotenv.config();
+
   // Contract address - you can set this in .env or pass as argument
   const AVATAR_ADDRESS = process.env.AVATAR_ADDRESS;
   
@@ -122,6 +122,8 @@ async function main() {
         console.error("Please provide new URI");
         process.exit(1);
       }
+      await updateURI(param, tokenId);
+      break;
 
     case "toggle":
       if (!param) {

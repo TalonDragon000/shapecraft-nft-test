@@ -10,7 +10,7 @@ describe("Avatar", function () {
 
   // URI addresses for testing
   const INITIAL_IPFS_URI = "ipfs://bafkreidsjpffdkeuzrlqci6k24rr5sitvzu4ndqsy22rvwoejl4pagk4g4";
-  const NEW_IPFS_URI = "ipfs://bafkreicyn2rnahtvyzugp4a7e4g7okexdwtdxgfhwv3qvmfoclgjopf5qq";
+  const NEW_IPFS_URI = "ipfs://bafkreicsmiwadxmc2gk22fhbxaa5dfm2mhcd6hf4tqdd3d4pztqmq36api";
 
   beforeEach(async function () {
     [owner, addr1] = await ethers.getSigners();
@@ -115,7 +115,7 @@ describe("Avatar", function () {
         await avatar.toggleIndividualURIs(true);
         
         // addr1 tries to update their token's URI
-        await avatar.connect(addr1).setTokenURI(tokenId, NEW_IPFS_URI);
+        await avatar.connect(addr1).setTokenURI(tokenId as number, NEW_IPFS_URI);
         
         // Verify the specific token URI was updated
         const balance = await avatar.balanceOf(`${addr1.address}`, `${tokenId}`);
