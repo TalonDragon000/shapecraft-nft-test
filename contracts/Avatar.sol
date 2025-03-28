@@ -5,112 +5,79 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Avatar is ERC1155, Ownable {
-    string public name;
-    string public symbol;
+    string public name = "Avatar";
+    string public symbol = "AVATAR";
     uint256 private _nextTokenId;
-    uint256 private maxMintLimit = 1; 
+    uint256 private maxMintLimit = 1;
     string private baseURI;
+    bool private _useIndividualURIs = true;
 
-    // Mapping for individual token URIs
     mapping(uint256 => string) private _tokenURIs;
-    bool private _useIndividualURIs;
+    mapping(address => uint256) private _mintedTokens;
 
     error MintLimitExceeded(address owner, uint256 currentBalance);
-    error UnauthorizedAccess(address caller);
 
-    // Custom event for tracking URI updates
     event TokenURIUpdated(uint256 indexed tokenId, string oldURI, string newURI);
 
-    constructor() ERC1155("") Ownable(msg.sender) {
-        name = "Avatar";
-        symbol = "AVATAR";
-        baseURI = ""; // initialize empty URI, will set after deployment
-        _useIndividualURIs = false; // Default to baseURI
-    }
+    constructor() ERC1155("") Ownable(msg.sender) {}
 
-    // Modified setTokenURI to check token ownership
-    function setTokenURI(uint256 tokenId, string memory newuri) public {
+    function setTokenURI(uint256 tokenId, string memory newuri) external {
         require(bytes(newuri).length > 0, "URI cannot be empty");
         require(_useIndividualURIs, "Individual URIs not enabled");
         require(tokenId < _nextTokenId, "Token does not exist");
-        
-        // Allow both token owner and contract owner to update
-        require(
-            balanceOf(msg.sender, tokenId) > 0 || msg.sender == owner(),
-            "Caller must own token or be contract owner"
-        );
+        require(balanceOf(msg.sender, tokenId) > 0, "Caller must own token");
 
         string memory oldURI = _tokenURIs[tokenId];
         _tokenURIs[tokenId] = newuri;
-        
+
         emit TokenURIUpdated(tokenId, oldURI, newuri);
         emit URI(newuri, tokenId);
     }
 
-    // Toggle between using individual URIs or baseURI
-    function toggleIndividualURIs(bool useIndividual) public onlyOwner {
+    function toggleIndividualURIs(bool useIndividual) external onlyOwner {
         _useIndividualURIs = useIndividual;
     }
 
-    // Check if using individual URIs
-    function usingIndividualURIs() public view returns (bool) {
+    function usingIndividualURIs() external view returns (bool) {
         return _useIndividualURIs;
     }
 
-    // Original setURI function now renamed to setBaseURI for clarity
-    function setBaseURI(string memory newuri) public onlyOwner {
+    function setBaseURI(string memory newuri) external onlyOwner {
         baseURI = newuri;
         emit URI(newuri, 0);
     }
 
-    // URI function to handle individual tokenId URIs
-    function uri(uint256 tokenId) public view virtual override returns (string memory) {
-        if (_useIndividualURIs && bytes(_tokenURIs[tokenId]).length > 0) {
-            return _tokenURIs[tokenId];
-        }
-        return baseURI;
+    function uri(uint256 tokenId) public view override returns (string memory) {
+        return (_useIndividualURIs && bytes(_tokenURIs[tokenId]).length > 0) ? _tokenURIs[tokenId] : baseURI;
     }
 
-    // Only owner can update the baseURI
-    function setURI(string memory newuri) public onlyOwner {
-        baseURI = newuri;
-        emit URI(newuri, 0);
-    }
- 
-    // Contract owner can mint without restrictions
-    function ownerMint(address to) public onlyOwner returns (uint256) {
+    function ownerMint(address to, string memory _TokenURI) external onlyOwner returns (uint256) {
         uint256 tokenId = _nextTokenId++;
         _mint(to, tokenId, 1, "");
+        if (bytes(_TokenURI).length > 0) {
+            _tokenURIs[tokenId] = _TokenURI;
+        }
         return tokenId;
     }
 
-    // Public mint function with restrictions
-    function mint() public returns (uint256) {
-        if (msg.sender != owner()) {
-            uint256 currentBalance = 0;
-            for(uint256 i = 0; i < _nextTokenId; i++) {
-                currentBalance += balanceOf(msg.sender, i);
-            }
-            
-            // Check if mint limit is exceeded for non-owners
-            if(currentBalance >= maxMintLimit) {
-                revert MintLimitExceeded(msg.sender, currentBalance);
-            }
-        }
-        
-        // Else, proceed to mint the token
+    function mint(string memory _TokenURI) external returns (uint256) {
+        require(_mintedTokens[msg.sender] < maxMintLimit, "Mint limit exceeded");
+
         uint256 tokenId = _nextTokenId++;
         _mint(msg.sender, tokenId, 1, "");
+        _mintedTokens[msg.sender]++;
+
+        if (bytes(_TokenURI).length > 0) {
+            _tokenURIs[tokenId] = _TokenURI;
+        }
         return tokenId;
     }
 
-    // Only contract owner can update mint limit
     function setMaxMintLimit(uint256 newLimit) external onlyOwner {
         maxMintLimit = newLimit;
     }
 
-    // View function to check current mint limit
-    function getMintLimit() public view returns (uint256) {
+    function getMintLimit() external view returns (uint256) {
         return maxMintLimit;
     }
 }

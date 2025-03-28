@@ -1,121 +1,127 @@
-import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Avatar } from "../typechain-types";
-import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
+import { expect } from "chai";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
-describe("Avatar", function () {
-  let avatar: Avatar;
-  let owner: SignerWithAddress;
-  let addr1: SignerWithAddress;
-  let addr2: SignerWithAddress;
+describe("Avatar Contract", function () {
+  async function deployAvatarFixture() {
+    const [owner, user1, user2] = await ethers.getSigners();
 
-  beforeEach(async function () {
-    [owner, addr1, addr2] = await ethers.getSigners();
-    const AvatarFactory = await ethers.getContractFactory("Avatar");
-    avatar = await AvatarFactory.deploy();
+    const Avatar = await ethers.getContractFactory("Avatar");
+    const avatar = await Avatar.deploy();
+
+    return { avatar, owner, user1, user2 };
+  }
+
+  it("Should deploy with correct initial values", async function () {
+    const { avatar } = await loadFixture(deployAvatarFixture);
+
+    expect(await avatar.name()).to.equal("Avatar");
+    expect(await avatar.symbol()).to.equal("AVATAR");
+    expect(await avatar.getMintLimit()).to.equal(1);
+    expect(await avatar.usingIndividualURIs()).to.be.true;
   });
 
-  describe("Minting Functions", function () {
-    it("Should allow the Owner to mint past max mint limits", async function () {
-      const limit = await avatar.getMintLimit();
-      expect(limit).to.equal(1);
-      console.log("Max mint limit:", limit.toString());
+  it("Should allow the owner to mint tokens", async function () {
+    const { avatar, owner, user1 } = await loadFixture(deployAvatarFixture);
 
-      // Owner mints 2 tokens
-      console.log("Contract Owner:", owner.address);
-      await avatar.ownerMint(owner.address);
-      await avatar.ownerMint(owner.address);
-      const balance0 = await avatar.balanceOf(owner.address, 0);
-      const balance1 = await avatar.balanceOf(owner.address, 1);
-      expect(balance0).to.equal(1);
-      expect(balance1).to.equal(1);
-      console.log("Owner minted 2 tokens");
-      // Verify balance
-      for(let i = 0; i < 3; i++) {
-        const balance = await avatar.balanceOf(owner.address, i);
-        if(balance > 0) {
-          console.log(`TokenID ${i} owned by Owner (${owner.address})`);
-        }
-      } console.log("Owner minted multiple tokens successfully");
-    });
+    const tokenURI = "https://example.com/token/1";
+    const tx = await avatar.ownerMint(user1.address, tokenURI);
+    await tx.wait();
 
-    it("Public may mint within limits", async function () {
-      const limit = await avatar.getMintLimit();
-      expect(limit).to.equal(1);
-      console.log("Initial mint limit:", limit.toString());
+    const tokenId = 0; // First token ID
+    expect(await avatar.balanceOf(user1.address, tokenId)).to.equal(1);
+    expect(await avatar.uri(tokenId)).to.equal(tokenURI);
+  });
 
-      // Owner mints 1 token
-      console.log("Contract Owner:", owner.address);
-      await avatar.ownerMint(owner.address);
-      const balance0 = await avatar.balanceOf(owner.address, 0);
-      expect(balance0).to.equal(1);
-      console.log("Owner minted 1 token");
+  it("Should allow users to mint within the limit", async function () {
+    const { avatar, user1 } = await loadFixture(deployAvatarFixture);
 
-      // Non-owner(Addr1) public mints 1 token
-      console.log("Addr1 Owner:", addr1.address);
-      await avatar.connect(addr1).mint();
-      const balance1 = await avatar.balanceOf(addr1.address, 1);
-      expect(balance1).to.equal(1);
-      console.log("Addr1 minted 1 token");
+    const tokenURI = "https://example.com/token/2";
+    const tx = await avatar.connect(user1).mint(tokenURI);
+    await tx.wait();
 
-      // Non-owner(Addr1) tries to mint 2 tokens - should fail
-      try { 
-        await avatar.connect(addr1).mint();
-        expect(false).to.be.true;
-      } catch (error: any) {
-        console.log("Non-owner mint limit exceeded");
-      }
-      
-      // Verify Addr1 token balance
-      console.log("\nAddr1's Tokens:");
-      for(let i = 0; i < 3; i++) {
-        const balance = await avatar.balanceOf(addr1.address, i);
-        if(balance > 0) {
-          console.log(`TokenID ${i} owned by Address1 (${addr1.address})`);
-        }
-      } 
-    });
+    const tokenId = 0; // First token ID for user1
+    expect(await avatar.balanceOf(user1.address, tokenId)).to.equal(1);
+    expect(await avatar.uri(tokenId)).to.equal(tokenURI);
+  });
 
-    it("Only the Owner can update mint limit", async function () {
-      // Owner updates limit to 3
-      await avatar.setMaxMintLimit(3);
-      const newLimit = await avatar.getMintLimit();
-      console.log(`Mint limit updated to ${newLimit.toString()}`);
-      expect(newLimit).to.equal(3);
+  it("Should enforce the mint limit", async function () {
+    const { avatar, user1 } = await loadFixture(deployAvatarFixture);
 
-      // Non-owner (addr1) tries to update limit to 4 - should fail
-      try {
-        await avatar.connect(addr1).setMaxMintLimit(4);
-        expect(false).to.be.true; // Should not reach here
-      } catch (error: any) {
-        console.log("Non-owner prevented from updating mint limit");
-      }
+    const tokenURI = "https://example.com/token/3";
+    await avatar.connect(user1).mint(tokenURI);
 
-      // Verify limit is still 3
-      const finalLimit = await avatar.getMintLimit();
-      expect(finalLimit).to.equal(3);
-      console.log(`Mint limit is still set to ${finalLimit.toString()}`);
-    });
+    await expect(avatar.connect(user1).mint(tokenURI)).to.be.revertedWith(
+      "Mint limit exceeded"
+    );
+  });
 
-    it("Should allow owner to mint to other addresses", async function () {
-      await avatar.ownerMint(owner.address);
-      await avatar.ownerMint(addr1.address);
-      console.log("Owner minted to other addresses successfully");
-    
-      console.log("\nOwner's Tokens:");
-      for(let i = 0; i < 3; i++) {
-        const balance = await avatar.balanceOf(owner.address, i);
-        if(balance > 0) {
-          console.log(`TokenID ${i} owned by Owner (${owner.address})`);
-        }
-      }
-      console.log("\nAddr1's Tokens:");
-      for(let i = 0; i < 3; i++) {
-        const balance = await avatar.balanceOf(addr1.address, i);
-        if(balance > 0) {
-          console.log(`TokenID ${i} owned by Address1 (${addr1.address})`);
-        }
-      }
-    });
+  it("Should allow the owner to update the max mint limit", async function () {
+    const { avatar, owner, user1 } = await loadFixture(deployAvatarFixture);
+
+    const newLimit = 2;
+    const tx = await avatar.connect(owner).setMaxMintLimit(newLimit);
+    await tx.wait();
+
+    expect(await avatar.getMintLimit()).to.equal(newLimit);
+
+    // User1 can now mint twice
+    const tokenURI1 = "https://example.com/token/4";
+    const tokenURI2 = "https://example.com/token/5";
+    await avatar.connect(user1).mint(tokenURI1);
+    await avatar.connect(user1).mint(tokenURI2);
+
+    expect(await avatar.balanceOf(user1.address, 0)).to.equal(1);
+    expect(await avatar.balanceOf(user1.address, 1)).to.equal(1);
+  });
+
+  it("Should allow the owner to toggle individual URIs", async function () {
+    const { avatar, owner } = await loadFixture(deployAvatarFixture);
+
+    const tx = await avatar.connect(owner).toggleIndividualURIs(false);
+    await tx.wait();
+
+    expect(await avatar.usingIndividualURIs()).to.be.false;
+  });
+
+  it("Should allow the owner to set a base URI", async function () {
+    const { avatar, owner } = await loadFixture(deployAvatarFixture);
+
+    const baseURI = "https://example.com/base/";
+    const tx = await avatar.connect(owner).setBaseURI(baseURI);
+    await tx.wait();
+
+    expect(await avatar.uri(0)).to.equal(baseURI);
+  });
+
+  it("Should allow updating token URIs if individual URIs are enabled", async function () {
+    const { avatar, owner, user1 } = await loadFixture(deployAvatarFixture);
+
+    const tokenURI = "https://example.com/token/6";
+    const tx1 = await avatar.ownerMint(user1.address, tokenURI);
+    await tx1.wait();
+
+    const tokenId = 0;
+    const newTokenURI = "https://example.com/token/updated";
+    const tx2 = await avatar.connect(user1).setTokenURI(tokenId, newTokenURI);
+    await tx2.wait();
+
+    expect(await avatar.uri(tokenId)).to.equal(newTokenURI);
+  });
+
+  it("Should revert when updating token URIs if individual URIs are disabled", async function () {
+    const { avatar, owner, user1 } = await loadFixture(deployAvatarFixture);
+
+    const tokenURI = "https://example.com/token/7";
+    const tx1 = await avatar.ownerMint(user1.address, tokenURI);
+    await tx1.wait();
+
+    const tokenId = 0;
+    await avatar.connect(owner).toggleIndividualURIs(false);
+
+    const newTokenURI = "https://example.com/token/updated";
+    await expect(
+      avatar.connect(user1).setTokenURI(tokenId, newTokenURI)
+    ).to.be.revertedWith("Individual URIs not enabled");
   });
 });
