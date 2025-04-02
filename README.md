@@ -49,28 +49,26 @@ npx hardhat help
   - Owner Roles:
 
     ```
-    Owner can mint past max mint limits --> "ownerMint()"
-    Owner can mint tokens to any address --> "ownerMint(<EOA_ADDRESS>)"
-    Owner can update the mint limit --> "setMintLimit()"
-    Owner can udpate the metadata URI for the entire collection --> "setBaseURI()"
-    Owner can update the metadata URI for a specific tokenId --> "setTokenURI(tokenId, newURI)"
+    Owner can mint past max mint limits --> ownerMint()
+    Owner can mint tokens to any address --> ownerMint(<EOA_ADDRESS>)
+    Owner can update the mint limit --> setMintLimit()
     ```
 
   - Public Mint:
 
     ```
-    Public can mint up to the mint limit --> "mint()" "avatar.connect(<YOUR_ADDRESS>).mint()"
+    There is no set price, so minting is FREE
+    Anyone can mint an NFT --> mint()
+    Default mint limit is 1 NFT per address --> maxMintLimit
+    Each NFT has a unique ID# --> tokenId
+    Each NFT has a unique base image --> baseURI
     ```
 
   - NFT Info:
 
     ```
-    Free NFT automatically minted when an account is created
-    There is a default image and metadata URI for each NFT --> baseURI()
-    Each NFT has a unique ID assigned to it --> tokenId()
-    Each NFT is assigned to the address that minted it --> ownerOf()
-    Default mint limit is 1 NFT per address
-    NFT holders can update the metadata URI for specific NFTs --> "setTokenURI(tokenId, newURI)"
+    Each NFT is assigned to the address that minted it --> _mintedTokens[msg.sender]
+    Only the NFT owner can update the image metadata --> setTokenURI()
     ```
 
 - World.sol
